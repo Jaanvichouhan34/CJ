@@ -93,6 +93,15 @@ router.post('/', async (req, res) => {
     // Log the FULL error so we can see exactly what went wrong
     console.error('Chat route error:', error.message);
     console.error('Full error:', error);
+
+    // Friendly rate limit message
+    if (error.status === 429) {
+      return res.status(503).json({
+        error: 'CJ is taking a quick breather! Too many requests. Please wait a moment and try again.',
+        details: 'Rate limit exceeded on Gemini API free tier.'
+      });
+    }
+
     res.status(500).json({
       error: 'Failed to get response from CJ',
       details: error.message

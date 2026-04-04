@@ -47,15 +47,16 @@ export default function ChatWindow() {
         body: JSON.stringify({ message: text, mode })
       });
       const data = await res.json();
-      
-      const reply = data.reply || 'Sorry, I got an error.';
+
+      // Use server's error message if available, or fallback
+      const reply = data.reply || data.error || 'Sorry, I got an error.';
       setMessages(prev => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
-      
+
       speak(reply);
-      
+
     } catch (err) {
       console.error(err);
-      const errMsg = 'Sorry, I am offline.';
+      const errMsg = 'Sorry, I am offline. Check your connection.';
       setMessages(prev => [...prev, { role: 'bot', text: errMsg, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
       speak(errMsg);
     } finally {

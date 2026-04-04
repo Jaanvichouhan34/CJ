@@ -4,21 +4,9 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow localhost and ANY vercel.app deployment
-    if (
-      !origin ||
-      origin.includes('vercel.app') ||
-      origin.includes('localhost')
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS: ' + origin));
-    }
-  },
+  origin: '*',
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
 }));
 
 app.options('*', cors());

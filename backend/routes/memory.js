@@ -3,8 +3,8 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
-// Target the desktop folder's memory.json
-const MEMORY_FILE = path.join(__dirname, '..', '..', 'desktop', 'memory.json');
+// Target backend/data/ folder — works both locally and on Render
+const MEMORY_FILE = path.join(__dirname, '..', 'data', 'memory.json');
 
 // Helper to read memory
 function readMemory() {
@@ -28,7 +28,9 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     try {
         const newData = req.body;
-        // Merge with existing or overwrite completely? Overwrite aligns with full setup.
+        // Ensure data directory exists
+        const dir = path.dirname(MEMORY_FILE);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         fs.writeFileSync(MEMORY_FILE, JSON.stringify(newData, null, 4));
         res.json({ success: true, memory: newData });
     } catch (err) {

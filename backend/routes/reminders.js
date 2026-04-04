@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
-const REMINDERS_FILE = path.join(__dirname, '..', '..', 'desktop', 'reminders.json');
+const REMINDERS_FILE = path.join(__dirname, '..', 'data', 'reminders.json');
 
 function readReminders() {
     try {
@@ -18,6 +18,9 @@ function readReminders() {
 
 function writeReminders(data) {
     try {
+        // Ensure data directory exists
+        const dir = path.dirname(REMINDERS_FILE);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         fs.writeFileSync(REMINDERS_FILE, JSON.stringify(data, null, 4));
         return true;
     } catch (err) {

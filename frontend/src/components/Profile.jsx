@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BASE_URL from '../config.js';
 
 export default function Profile() {
   const [profile, setProfile] = useState({});
@@ -11,7 +12,7 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/memory');
+      const res = await fetch(`${BASE_URL}/api/memory`);
       const data = await res.json();
       setProfile(data);
       setFormData(data);
@@ -22,7 +23,7 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      await fetch('http://localhost:5000/api/memory', {
+      await fetch(`${BASE_URL}/api/memory`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

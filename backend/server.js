@@ -1,26 +1,20 @@
 require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 const app = express();
 
 app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://cj-backend-59nv.onrender.com',
-    ];
-    // Allow requests with no origin (mobile, Postman, etc.)
-    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS: ' + origin));
-    }
-  },
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://cj-ftkytvay9-jaanvi-chouhans-projects.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
+app.options('*', cors());
 app.use(express.json());
 
 app.use('/api/memory', require('./routes/memory'));

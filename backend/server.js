@@ -7,7 +7,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://cj-ftkytvay9-jaanvi-chouhans-projects.vercel.app'
+    'https://cj-puce.vercel.app'
   ],
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BASE_URL from '../config.js';
 
 export default function ReminderPanel() {
   const [reminders, setReminders] = useState([]);
@@ -12,7 +13,7 @@ export default function ReminderPanel() {
 
   const fetchReminders = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/reminders');
+      const res = await fetch(`${BASE_URL}/api/reminders`);
       const data = await res.json();
       setReminders(data);
     } catch(err) {
@@ -24,7 +25,7 @@ export default function ReminderPanel() {
     e.preventDefault();
     if(!time || !message) return;
     try {
-      const res = await fetch('http://localhost:5000/api/reminders', {
+      const res = await fetch(`${BASE_URL}/api/reminders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ time, message })
@@ -42,7 +43,7 @@ export default function ReminderPanel() {
 
   const handleDelete = async (index) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/reminders/${index}`, { method: 'DELETE' });
+      const res = await fetch(`${BASE_URL}/api/reminders/${index}`, { method: 'DELETE' });
       if(res.ok) fetchReminders();
     } catch(err) {
       console.error('Error deleting reminder', err);

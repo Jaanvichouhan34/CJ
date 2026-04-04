@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { speak, setVoiceGender } from '../utils/voice';
+import BASE_URL from '../config.js';
 
 export default function SetupModal({ onComplete }) {
   const [step, setStep] = useState(1);
@@ -50,7 +51,7 @@ export default function SetupModal({ onComplete }) {
       };
       
       try {
-        await fetch('http://localhost:5000/api/memory', {
+        await fetch(`${BASE_URL}/api/memory`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)

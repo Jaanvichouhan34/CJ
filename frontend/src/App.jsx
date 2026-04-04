@@ -6,6 +6,7 @@ import SetupModal from './components/SetupModal';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
 import { speak } from './utils/voice';
+import BASE_URL from './config.js';
 
 function App() {
   const [activeTab, setActiveTab] = useState('chat');
@@ -14,7 +15,7 @@ function App() {
 
   // Initial setup check
   useEffect(() => {
-    fetch('http://localhost:5000/api/memory')
+    fetch(`${BASE_URL}/api/memory`)
       .then(res => res.json())
       .then(data => {
         if (!data || Object.keys(data).length === 0) {
@@ -32,7 +33,7 @@ function App() {
   useEffect(() => {
     const checkReminders = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/reminders');
+        const res = await fetch(`${BASE_URL}/api/reminders`);
         const reminders = await res.json();
         
         const now = new Date();
@@ -50,7 +51,7 @@ function App() {
             }
             
             // Mark as fired
-            await fetch(`http://localhost:5000/api/reminders/${index}/fire`, { method: 'POST' });
+            await fetch(`${BASE_URL}/api/reminders/${index}/fire`, { method: 'POST' });
           }
         }
       } catch (e) {

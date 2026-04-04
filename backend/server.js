@@ -4,9 +4,14 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-  origin: '*',
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://cj-ftkytvay9-jaanvi-chouhans-projects.vercel.app'
+  ],
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.options('*', cors());

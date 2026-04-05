@@ -1,4 +1,4 @@
-[LIVE](https://cj-puce.vercel.app/)
+
 # 🤖 CJ — Your Personal AI Desktop Assistant
 
 > *"Not just an assistant. Your friend."*

@@ -33,11 +33,76 @@ export default function ChatWindow() {
     showToast(newMode === 'friend' ? 'Friend Mode Active ✌️' : 'Assistant Mode Active 🤖');
   };
 
+  const handleSystemCommand = (text) => {
+    const lower = text.toLowerCase().trim();
+    
+    // Command: Lock / Trash (Local only notice)
+    if (lower.includes('lock pc') || lower.includes('lock screen') || lower.includes('empty trash')) {
+      const reply = "I can only control hardware (like locking your PC or emptying trash) if I'm running as a Desktop app. On the web version, I'm a bit more limited, bro!";
+      setMessages(prev => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+      speak(reply);
+      return true;
+    }
+
+    // Command: Time
+    if (lower.includes('what time') || lower.includes('time is it') || lower.includes('current time')) {
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const reply = `The current time is ${timeStr}.`;
+      setMessages(prev => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+      speak(reply);
+      return true;
+    }
+
+    // Command: Search
+    if (lower.startsWith('search for ') || lower.startsWith('google ')) {
+      const query = lower.replace(/^(search for|google)\s+/i, '').trim();
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+      const reply = `Searching the web for ${query}.`;
+      setMessages(prev => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+      speak(reply);
+      return true;
+    }
+
+    // Command: Open App/Site
+    if (lower.startsWith('open ') || lower.startsWith('start ') || lower.startsWith('launch ')) {
+      const app = lower.replace(/^(open|start|launch)\s+/i, '').trim();
+      const appMap = {
+        'whatsapp': 'https://web.whatsapp.com',
+        'whatshapp': 'https://web.whatsapp.com',
+        'spotify': 'spotify:',
+        'spotfy': 'spotify:',
+        'discord': 'discord:',
+        'youtube': 'https://youtube.com',
+        'instagram': 'https://instagram.com',
+        'netflix': 'https://netflix.com',
+        'gmail': 'https://mail.google.com',
+        'chatgpt': 'https://chatgpt.com',
+        'claude': 'https://claude.ai',
+        'github': 'https://github.com'
+      };
+
+      const url = appMap[app];
+      if (url) {
+        window.open(url, '_blank');
+        const reply = `Right away! I'm opening ${app} for you.`;
+        setMessages(prev => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+        speak(reply);
+        return true;
+      }
+    }
+
+    return false; // Not a system command
+  };
+
   const sendMessage = async (text) => {
     if (!text.trim()) return;
     
     setMessages(prev => [...prev, { role: 'user', text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
     setInput('');
+
+    // Check for system override commands locally before sending to backend
+    if (handleSystemCommand(text)) return;
+
     setIsTyping(true);
     
     try {

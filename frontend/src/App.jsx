@@ -5,6 +5,7 @@ import ReminderPanel from './components/ReminderPanel';
 import SetupModal from './components/SetupModal';
 import Profile from './components/Profile';
 import Settings from './components/Settings';
+import Help from './components/Help';
 import { speak } from './utils/voice';
 import BASE_URL from './config.js';
 
@@ -38,12 +39,18 @@ function App() {
         
         const now = new Date();
         const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const currentDate = now.toISOString().split('T')[0];
 
         for (let index = 0; index < reminders.length; index++) {
           const reminder = reminders[index];
-          if (reminder.time === currentTime && !reminder.fired) {
-            // Speak the reminder out loud
-            speak(`Hey! Reminder: ${reminder.message}`);
+          
+          const timeMatches = reminder.time === currentTime;
+          const dateMatches = !reminder.date || reminder.date === currentDate;
+
+          if (timeMatches && dateMatches && !reminder.fired) {
+            // Speak the reminder out loud twice
+            await speak(`Hey! Reminder: ${reminder.message}`);
+            await speak(`I repeat, ${reminder.message}`);
             
             // Show browser notification
             if (Notification.permission === 'granted') {
@@ -88,6 +95,7 @@ function App() {
         {activeTab === 'reminders' && <ReminderPanel />}
         {activeTab === 'profile' && <Profile />}
         {activeTab === 'settings' && <Settings />}
+        {activeTab === 'help' && <Help />}
       </main>
 
       {showSetup && <SetupModal onComplete={() => setShowSetup(false)} />}

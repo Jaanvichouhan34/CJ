@@ -31,74 +31,117 @@ export default function Settings() {
   };
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem', zIndex: 5, position: 'relative' }}>
-      <h2 style={{ fontSize: '1.8rem', fontWeight: '700' }}>System Settings ⚙️</h2>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem', zIndex: 5, position: 'relative', animation: 'slideUp 0.4s easeOut' }}>
       
-      <div className="glass-card anim-slide-up" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '-10px' }}>
+        <h2 style={{ fontSize: '2.2rem', fontWeight: '800', margin: 0, background: 'linear-gradient(135deg, var(--text-primary), var(--text-muted))', WebkitBackgroundClip: 'text', color: 'transparent' }}>
+          System Settings
+        </h2>
+        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', padding: '5px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px' }}>v1.0.0 Stable</span>
+      </div>
+
+      <div className="glass-card" style={{ padding: '3rem', display: 'flex', flexDirection: 'column', gap: '3rem', overflow: 'hidden', position: 'relative' }}>
         
+        {/* Subtle background glow effect inside the card */}
+        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(0,200,255,0.05) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none' }}></div>
+
         {/* Voice Settings */}
-        <div>
-          <h3 style={{ fontSize: '1.3rem', color: 'var(--accent-blue)', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Voice Preferences</h3>
+        <section>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2rem' }}>
+            <div style={{ width: '45px', height: '45px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--accent-blue), rgba(0, 200, 255, 0.2))', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.4rem' }}>
+              🗣️
+            </div>
+            <h3 style={{ fontSize: '1.4rem', margin: 0, fontWeight: 600 }}>Voice Preferences</h3>
+          </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '2.5rem', background: 'rgba(0,0,0,0.2)', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.03)' }}>
             <div>
-              <label style={{ display: 'block', color: 'var(--text-muted)', marginBottom: '1rem' }}>Voice Gender</label>
+              <label style={{ display: 'block', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 500, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Voice Persona</label>
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <button 
                   className={`glow-button outline ${voiceSettings.gender === 'male' ? 'active' : ''}`}
                   onClick={() => handleVoiceChange('gender', 'male')}
-                  style={{ flex: 1, borderColor: voiceSettings.gender === 'male' ? 'var(--accent-blue)' : 'var(--border)' }}
-                >Male</button>
+                  style={{ 
+                    flex: 1, height: '55px', fontSize: '1.05rem', 
+                    background: voiceSettings.gender === 'male' ? 'rgba(0,200,255,0.1)' : 'transparent',
+                    borderColor: voiceSettings.gender === 'male' ? 'var(--accent-blue)' : 'var(--border)' 
+                  }}
+                >👨 Male</button>
                 <button 
                   className={`glow-button outline ${voiceSettings.gender === 'female' ? 'active' : ''}`}
                   onClick={() => handleVoiceChange('gender', 'female')}
-                  style={{ flex: 1, borderColor: voiceSettings.gender === 'female' ? 'var(--accent-pink)' : 'var(--border)' }}
-                >Female</button>
+                  style={{ 
+                    flex: 1, height: '55px', fontSize: '1.05rem',
+                    background: voiceSettings.gender === 'female' ? 'rgba(236,72,153,0.1)' : 'transparent',
+                    borderColor: voiceSettings.gender === 'female' ? 'var(--accent-pink)' : 'var(--border)' 
+                  }}
+                >👩 Female</button>
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', color: 'var(--text-muted)', marginBottom: '1rem' }}>Speaking Speed</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span>Slow</span>
+              <label style={{ display: 'block', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 500, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Speaking Speed</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', height: '55px', background: 'var(--bg-card)', padding: '0 20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: '1.2rem' }}>🐢</span>
                 <input type="range" min="0.5" max="1.5" step="0.1" 
                   value={voiceSettings.speed} 
                   onChange={(e) => handleVoiceChange('speed', e.target.value)}
-                  style={{ flex: 1, accentColor: 'var(--accent-blue)' }} 
+                  style={{ flex: 1, accentColor: 'var(--accent-blue)', height: '6px' }} 
                 />
-                <span>Fast</span>
+                <span style={{ fontSize: '1.2rem' }}>🐇</span>
               </div>
             </div>
           </div>
           
-          <button className="glow-button" onClick={testVoice} style={{ marginTop: '1.5rem' }}>
-            🔊 Test Voice
+          <button className="glow-button outline" onClick={testVoice} style={{ marginTop: '1.5rem', padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span>🔊</span> Test Voice Sound
           </button>
-        </div>
+        </section>
 
-        {/* Notifications */}
-        <div>
-          <h3 style={{ fontSize: '1.3rem', color: 'var(--accent-purple)', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>Browser Notifications</h3>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ color: 'var(--text-muted)' }}>Status: <strong style={{ color: notifications === 'granted' ? '#10b981' : 'var(--text-primary)' }}>{notifications.toUpperCase()}</strong></p>
-            {notifications !== 'granted' && (
-              <button className="glow-button outline" onClick={requestNotification}>Request Permission</button>
-            )}
-          </div>
-        </div>
+        <hr style={{ border: 'none', height: '1px', background: 'linear-gradient(90deg, transparent, var(--border), transparent)' }} />
 
-        {/* About */}
-        <div>
-          <h3 style={{ fontSize: '1.3rem', color: 'var(--accent-pink)', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>About CJ</h3>
-          <p style={{ color: 'var(--text-primary)', lineHeight: '1.6' }}>
-            CJ is your personalized AI Desktop Assistant built for seamless work and companionship. 
-            It utilizes the Web Speech API and Gemini underneath a React glassmorphism dashboard.
-          </p>
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '2rem', color: 'var(--text-muted)' }}>
-            <span><strong>Version:</strong> 1.0.0</span>
-            <span><strong>Built by:</strong> Jaanvi Chouhan</span>
+        {/* Notifications & Permissions */}
+        <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, var(--accent-purple), rgba(168, 85, 247, 0.2))', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>
+                🔔
+              </div>
+              <h3 style={{ fontSize: '1.3rem', margin: 0, fontWeight: 600 }}>Browser Alerts</h3>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <div>
+                <p style={{ margin: '0 0 5px 0', fontWeight: 500 }}>Push Notifications</p>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-muted)' }}>Status: <strong style={{ color: notifications === 'granted' ? '#10b981' : '#f59e0b', letterSpacing: '1px' }}>{notifications.toUpperCase()}</strong></p>
+              </div>
+              {notifications !== 'granted' && (
+                <button className="glow-button" onClick={requestNotification} style={{ padding: '10px 20px', borderRadius: '8px' }}>Allow</button>
+              )}
+            </div>
           </div>
-        </div>
+
+          {/* About System */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, var(--accent-pink), rgba(236, 72, 153, 0.2))', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '1.2rem' }}>
+                ℹ️
+              </div>
+              <h3 style={{ fontSize: '1.3rem', margin: 0, fontWeight: 600 }}>System Core</h3>
+            </div>
+            
+            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '15px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <p style={{ color: 'var(--text-primary)', lineHeight: '1.6', margin: '0 0 1rem 0', fontSize: '0.95rem' }}>
+                CJ is a personalized Desktop Assistant built for seamless work and companionship. 
+                Running on Web Speech API and <strong style={{color: 'var(--accent-blue)'}}>Groq LLaMA 3 70B</strong>.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.85rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+                <span>Engine: <strong>Groq Cloud</strong></span>
+                <span>Creator: <strong>Jaanvi</strong></span>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </div>
     </div>

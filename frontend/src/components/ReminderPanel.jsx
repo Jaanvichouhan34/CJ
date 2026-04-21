@@ -21,6 +21,15 @@ export default function ReminderPanel() {
     }
   };
 
+  const formatAMPM = (timeStr) => {
+    if (!timeStr) return '';
+    let [hours, minutes] = timeStr.split(':');
+    let h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${minutes} ${ampm}`;
+  };
+
   const handleAdd = async (e) => {
     e.preventDefault();
     if(!time || !message) return;
@@ -89,7 +98,14 @@ export default function ReminderPanel() {
               opacity: r.fired ? 0.6 : 1
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                <strong style={{ fontSize: '1.8rem', color: r.fired ? 'var(--text-muted)' : 'var(--accent-blue)', fontWeight: 'bold' }}>{r.time}</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  {r.date && (
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent-purple)', background: 'rgba(168, 85, 247, 0.1)', padding: '2px 8px', borderRadius: '4px', marginBottom: '4px', textTransform: 'uppercase' }}>
+                      {new Date(r.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                    </span>
+                  )}
+                  <strong style={{ fontSize: '1.8rem', color: r.fired ? 'var(--text-muted)' : 'var(--accent-blue)', fontWeight: 'bold' }}>{formatAMPM(r.time)}</strong>
+                </div>
                 <p style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)', textDecoration: r.fired ? 'line-through' : 'none' }}>{r.message}</p>
               </div>
               

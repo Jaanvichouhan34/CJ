@@ -22,10 +22,10 @@ export default function SetupModal({ onComplete }) {
         speak("Nice to meet you! How old are you?");
         break;
       case 3:
-        speak("Cool! Which college do you go to?");
+        speak("Cool! Which college or school do you go to?");
         break;
       case 4:
-        speak("Awesome! What are you currently working on?");
+        speak("Awesome! What are you currently working on, or what's your main focus?");
         break;
       case 5:
         speak("Last question — do you prefer a male or female voice?");
@@ -114,15 +114,15 @@ export default function SetupModal({ onComplete }) {
           )}
           {step === 3 && (
             <div className="anim-slide-in-right" key="s3">
-              <h3 style={{ fontSize: '1.6rem', marginBottom: '1rem', textAlign: 'center' }}>Which college do you go to?</h3>
-              <input type="text" className="glow-input" autoFocus
+              <h3 style={{ fontSize: '1.6rem', marginBottom: '1rem', textAlign: 'center' }}>Which college or school do you attend?</h3>
+              <input type="text" className="glow-input" autoFocus placeholder="e.g. Stanford University or Delhi Public School"
                 value={formData.college} onChange={e => updateData('college', e.target.value)} required />
             </div>
           )}
           {step === 4 && (
             <div className="anim-slide-in-right" key="s4">
-              <h3 style={{ fontSize: '1.6rem', marginBottom: '1rem', textAlign: 'center' }}>What are you working on?</h3>
-              <input type="text" className="glow-input" autoFocus
+              <h3 style={{ fontSize: '1.6rem', marginBottom: '1rem', textAlign: 'center' }}>What is your current focus or work?</h3>
+              <input type="text" className="glow-input" autoFocus placeholder="e.g. Studying CS or Junior Developer"
                 value={formData.work} onChange={e => updateData('work', e.target.value)} required />
             </div>
           )}

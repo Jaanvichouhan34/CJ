@@ -4,6 +4,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     { id: 'reminders', label: 'Reminders', icon: '⏰' },
     { id: 'profile', label: 'Profile', icon: '👤' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'help', label: 'Help', icon: '🤖' },
   ];
 
   return (

@@ -17,7 +17,9 @@ router.post('/', async (req, res) => {
     }
 
     // --- JARVIS SYSTEM CONTROL OVERRIDE ---
-    const lowerMsg = message.toLowerCase().trim();
+    let lowerMsg = message.toLowerCase().trim();
+    // Remove common prefixes
+    lowerMsg = lowerMsg.replace(/^(hey|cj|assistant|friend)[,\s]*/i, '');
     
     // Command 1: Lock PC
     if (lowerMsg === 'lock pc' || lowerMsg === 'lock screen' || lowerMsg === 'lock my pc') {
@@ -32,8 +34,8 @@ router.post('/', async (req, res) => {
     }
 
     // Command 3: Search Web Dynamically
-    if (lowerMsg.startsWith('search for ') || lowerMsg.startsWith('google ')) {
-      const query = lowerMsg.replace(/^(search for|google)\s+/i, '').trim();
+    if (lowerMsg.match(/^(search for|google|find)\s+/i)) {
+      const query = lowerMsg.replace(/^(search for|google|find)\s+/i, '').replace(/[?!.]$/, '').trim();
       const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
       exec(`start chrome "${searchUrl}"`);
       return res.json({ reply: `Searching the web for ${query}.` });
@@ -46,8 +48,8 @@ router.post('/', async (req, res) => {
     }
 
     // Command 5: Open Apps & Websites
-    if (lowerMsg.startsWith('open ') || lowerMsg.startsWith('start ') || lowerMsg.startsWith('launch ')) {
-      let app = lowerMsg.replace(/^(open|start|launch)\s+/i, '').trim();
+    if (lowerMsg.match(/^(open|start|launch)\s+/i)) {
+      let app = lowerMsg.replace(/^(open|start|launch)\s+/i, '').replace(/[?!.]$/, '').trim();
       
       const appMap = {
         // Comm & Social
@@ -60,6 +62,7 @@ router.post('/', async (req, res) => {
         // Browsers
         'chrome': 'start chrome',
         'edge': 'start msedge',
+        'microsoft edge': 'start msedge',
         
         // Media
         'spotify': 'start spotify:',
@@ -77,12 +80,13 @@ router.post('/', async (req, res) => {
         'vs code': 'code',
         'vscode': 'code',
         'visual studio code': 'code',
+        'antigravity': 'start antigravity',
         'command prompt': 'start cmd',
         'cmd': 'start cmd',
         'powershell': 'start powershell',
         'cj': 'start cmd /k "cd C:\\Users\\MOHIT\\OneDrive\\Desktop\\CJ"',
         
-        // Windows Utilities
+        // Windows Utilities & Apps
         'settings': 'start ms-settings:',
         'calculator': 'start calc',
         'calc': 'start calc',
@@ -91,6 +95,17 @@ router.post('/', async (req, res) => {
         'task manager': 'start taskmgr',
         'file explorer': 'start explorer',
         'explorer': 'start explorer',
+        'camera': 'start microsoft.windows.camera:',
+        'calendar': 'start ms-calendar:',
+        'microsoft store': 'start ms-windows-store:',
+        'xbox': 'start xbox:',
+        
+        // Settings / Hardware
+        'bluetooth': 'start ms-settings:bluetooth',
+        'wifi': 'start ms-settings:network-wifi',
+        'airplane mode': 'start ms-settings:network-airplanemode',
+        'lock screen': 'rundll32.exe user32.dll,LockWorkStation',
+        'lock pc': 'rundll32.exe user32.dll,LockWorkStation',
         
         // Web Services
         'gmail': 'start chrome "https://mail.google.com"',
@@ -108,12 +123,14 @@ router.post('/', async (req, res) => {
       return res.json({ reply: `Right away! I'm opening ${app} for you.` });
     }
 
-    // Command 6: Natural Language Reminders (Jarvis style)
-    if (lowerMsg.includes('set reminder') || lowerMsg.includes('remind me') || lowerMsg.includes('set alarm')) {
-      // Regex 1: Time (e.g., 2pm, 14:30)
+    // Command 6: Natural Language Reminders (Improved parser)
+    if (lowerMsg.includes('reminder') || lowerMsg.includes('remind me') || lowerMsg.includes('set alarm') || 
+       (lowerMsg.includes('date') && lowerMsg.includes('time') && lowerMsg.includes('event'))) {
+      
+      // Regex 1: Time (e.g., 2pm, 14:30, 12 pm)
       const timeRegex = /(\d{1,2}(?::\d{2})?\s*(?:am|pm|am|pm|AM|PM)?)/i;
-      // Regex 2: Date (e.g., 2 jan, jan 2, 2nd january)
-      const dateRegex = /(\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:st|nd|rd|th)?)/i;
+      // Regex 2: Date (e.g., 2 jan, jan 2, 2nd january, 24 april 2026)
+      const dateRegex = /(\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*\d{0,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:st|nd|rd|th)?\s*\d{0,4})/i;
       
       const timeMatch = lowerMsg.match(timeRegex);
       const dateMatch = lowerMsg.match(dateRegex);
@@ -123,9 +140,12 @@ router.post('/', async (req, res) => {
           let rawDate = dateMatch ? dateMatch[0].toLowerCase().trim() : null;
 
           let msgText = lowerMsg
-            .replace(/^(set reminder|remind me|set alarm)\s+/i, '')
+            .replace(/^(set reminder|remind me|set alarm|reminder)\s+/i, '')
             .replace(/at\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?/i, '')
             .replace(/on\s+date\s+.*|on\s+\d{1,2}.*|at\s+date\s+.*/i, '') // remove date strings
+            .replace(/date\s+.*?\s+event/i, '') // handle "date ... event" format
+            .replace(/event\s+/i, '')
+            .replace(/time\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?/i, '')
             .replace(/to\s+/i, '')
             .replace(/for\s+/i, '')
             .trim();
@@ -133,11 +153,16 @@ router.post('/', async (req, res) => {
           // Convert 12h to 24h
           let hours = 0, minutes = 0;
           if (timeMatch) {
-            let [hPart, mPart] = rawTime.split(':');
-            hours = parseInt(hPart, 10);
-            minutes = mPart ? parseInt(mPart, 10) : 0;
-            if (rawTime.includes('pm') && hours < 12) hours += 12;
-            if (rawTime.includes('am') && hours === 12) hours = 0;
+            // Remove spaces before am/pm for easier splitting
+            const cleanedTime = rawTime.replace(/\s+(am|pm)/i, '$1');
+            const match = cleanedTime.match(/(\d{1,2})(?::(\d{2}))?(am|pm)?/i);
+            if (match) {
+              hours = parseInt(match[1], 10);
+              minutes = match[2] ? parseInt(match[2], 10) : 0;
+              const ampm = match[3];
+              if (ampm === 'pm' && hours < 12) hours += 12;
+              if (ampm === 'am' && hours === 12) hours = 0;
+            }
           }
 
           const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;

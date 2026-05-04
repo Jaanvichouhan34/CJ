@@ -10,7 +10,7 @@ const User = require('../models/User');
 // GET: Fetch recent chat history
 router.get('/history', async (req, res) => {
   try {
-    const history = await Chat.find().sort({ timestamp: -1 }).limit(20);
+    const history = await Chat.find().sort({ timestamp: -1 }).limit(10);
     res.json(history.reverse().map(c => ({
       role: c.role === 'assistant' ? 'bot' : 'user',
       text: c.content,
@@ -241,10 +241,10 @@ router.post('/', async (req, res) => {
       console.log('Using default owner name');
     }
 
-    // 2. Fetch history (Limit to 3 for ultra-fast performance)
+    // 2. Fetch history (Limit to 8 for a good balance)
     let history = [];
     try {
-      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(3);
+      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(8);
       history = recentChats.reverse().map(c => ({ role: c.role, content: c.content }));
     } catch (e) {
       console.error('History fetch failed, skipping');
@@ -281,13 +281,17 @@ router.post('/', async (req, res) => {
     const data = await response.json();
     const reply = data.choices[0].message.content;
 
-    // 3. Save both messages to DB in the background (Don't make user wait)
-    Chat.create([
-      { role: 'user', content: message },
-      { role: 'assistant', content: reply }
-    ]).catch(e => console.error('Background DB save failed:', e));
+    // 3. Save both messages to DB (AWAIT this to ensure it saves on free tiers)
+    try {
+      await Chat.create([
+        { role: 'user', content: message },
+        { role: 'assistant', content: reply }
+      ]);
+      console.log('✅ Chat saved to MongoDB');
+    } catch (e) {
+      console.error('❌ DB Save Error:', e);
+    }
 
-    console.log('CJ reply:', reply);
     res.json({ reply });
 
   } catch (error) {

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const app = express();
 
 app.use(cors({
@@ -11,6 +12,12 @@ app.use(cors({
 
 app.options('*', cors());
 app.use(express.json());
+
+// MongoDB Connection
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cj_assistant';
+mongoose.connect(mongoURI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 app.use('/api/memory', require('./routes/memory'));
 app.use('/api/reminders', require('./routes/reminders'));

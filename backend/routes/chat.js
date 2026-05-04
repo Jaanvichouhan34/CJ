@@ -4,6 +4,8 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+const Chat = require('../models/Chat');
+const User = require('../models/User');
 
 router.post('/', async (req, res) => {
   try {
@@ -214,21 +216,43 @@ router.post('/', async (req, res) => {
     }
 
     // Load owner memory for personalization
-    let ownerName = 'friend';
+    let ownerName = 'Friend';
     try {
-      const memoryPath = path.join(__dirname, '../../desktop/memory.json');
-      if (fs.existsSync(memoryPath)) {
-        const memory = JSON.parse(fs.readFileSync(memoryPath, 'utf8'));
-        if (memory.name) ownerName = memory.name;
+      const user = await User.findOne();
+      if (user) {
+        ownerName = user.name;
+      } else {
+        // Fallback to memory.json if no DB user exists yet
+        const memoryPath = path.join(__dirname, '../../desktop/memory.json');
+        if (fs.existsSync(memoryPath)) {
+          const memory = JSON.parse(fs.readFileSync(memoryPath, 'utf8'));
+          if (memory.name) ownerName = memory.name;
+        }
       }
     } catch (e) {
-      console.log('Could not load memory.json, using default name');
+      console.log('Could not load user memory, using default');
     }
 
     // Build personality prompt based on mode
     const personality = mode === 'friend'
       ? `You are CJ, the best friend of ${ownerName}. Be casual, warm, funny. Keep your response short and concise. Use phrases like ayo, bro, fr fr. Always call them by name.`
       : `You are CJ, a professional AI assistant for ${ownerName}. Be helpful, precise, short and friendly.`;
+
+    // Save User Message to DB
+    try {
+      await Chat.create({ role: 'user', content: message });
+    } catch (e) {
+      console.error('Failed to save user message to DB:', e);
+    }
+
+    // Fetch last 10 messages for context
+    let history = [];
+    try {
+      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(10);
+      history = recentChats.reverse().map(c => ({ role: c.role, content: c.content }));
+    } catch (e) {
+      console.error('Failed to fetch history:', e);
+    }
 
     // Call Groq API via standard JSON fetch
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -241,7 +265,7 @@ router.post('/', async (req, res) => {
         model: 'llama-3.3-70b-versatile',
         messages: [
            { role: 'system', content: personality },
-           { role: 'user', content: message }
+           ...history
         ]
       })
     });
@@ -253,6 +277,13 @@ router.post('/', async (req, res) => {
 
     const data = await response.json();
     const reply = data.choices[0].message.content;
+
+    // Save Assistant Reply to DB
+    try {
+      await Chat.create({ role: 'assistant', content: reply });
+    } catch (e) {
+      console.error('Failed to save assistant reply to DB:', e);
+    }
 
     console.log('CJ reply:', reply);
     res.json({ reply });

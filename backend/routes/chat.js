@@ -7,6 +7,20 @@ const { exec } = require('child_process');
 const Chat = require('../models/Chat');
 const User = require('../models/User');
 
+// GET: Fetch recent chat history
+router.get('/history', async (req, res) => {
+  try {
+    const history = await Chat.find().sort({ timestamp: -1 }).limit(20);
+    res.json(history.reverse().map(c => ({
+      role: c.role === 'assistant' ? 'bot' : 'user',
+      text: c.content,
+      time: new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    })));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
 router.post('/', async (req, res) => {
   try {
     // Log the incoming request so we can debug

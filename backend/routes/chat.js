@@ -238,23 +238,16 @@ router.post('/', async (req, res) => {
       ? `You are CJ, the best friend of ${ownerName}. Be casual, warm, funny. Keep your response short and concise. Use phrases like ayo, bro, fr fr. Always call them by name.`
       : `You are CJ, a professional AI assistant for ${ownerName}. Be helpful, precise, short and friendly.`;
 
-    // Save User Message to DB
-    try {
-      await Chat.create({ role: 'user', content: message });
-    } catch (e) {
-      console.error('Failed to save user message to DB:', e);
-    }
-
-    // Fetch last 10 messages for context
+    // 1. Fetch history FIRST (limit to 6 for speed)
     let history = [];
     try {
-      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(10);
+      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(6);
       history = recentChats.reverse().map(c => ({ role: c.role, content: c.content }));
     } catch (e) {
-      console.error('Failed to fetch history:', e);
+      console.error('Failed to fetch history, proceeding without it');
     }
 
-    // Call Groq API via standard JSON fetch
+    // 2. Call Groq API (Include current message MANUALLY to ensure it's there)
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -265,7 +258,8 @@ router.post('/', async (req, res) => {
         model: 'llama-3.3-70b-versatile',
         messages: [
            { role: 'system', content: personality },
-           ...history
+           ...history,
+           { role: 'user', content: message } // Always include current message!
         ]
       })
     });
@@ -278,12 +272,11 @@ router.post('/', async (req, res) => {
     const data = await response.json();
     const reply = data.choices[0].message.content;
 
-    // Save Assistant Reply to DB
-    try {
-      await Chat.create({ role: 'assistant', content: reply });
-    } catch (e) {
-      console.error('Failed to save assistant reply to DB:', e);
-    }
+    // 3. Save both messages to DB in the background (Don't make user wait)
+    Chat.create([
+      { role: 'user', content: message },
+      { role: 'assistant', content: reply }
+    ]).catch(e => console.error('Background DB save failed:', e));
 
     console.log('CJ reply:', reply);
     res.json({ reply });

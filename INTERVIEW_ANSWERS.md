@@ -134,16 +134,48 @@ Zangoh builds sophisticated AI Agents that automate workflows. CJ is a "Personal
 
 ---
 
-## 🔹 Challenges & Learning
+## 🔹 Technical — Frontend & UX
 
-**What was the hardest part of building CJ?**
-**Echo Cancellation.** When CJ speaks, the mic would hear CJ and think it was the user talking. I had to build a custom event listener (`cj-speech-start`) to "mute" the microphone whenever the AI was talking.
+**How do you handle state in React?**
+I use `useState` for things that change on the screen (like the message list) and `useEffect` to trigger actions automatically (like checking for reminders every 30 seconds).
 
-**Did you face any bugs? How did you fix them?**
-The "Voice Loop" bug was the biggest. I fixed it by creating a global state `window.isCjSpeaking` and aborting the `SpeechRecognition` instance whenever that state was true.
+**How does the auto-scroll work in the chat?**
+I use a `useRef` hook at the bottom of the chat window. Every time a new message is added, I tell React to "scroll to that ref" so the user always sees the latest reply.
 
-**What would you do differently if you rebuilt CJ today?**
-I would use **Python** for the backend to leverage the `LangChain` or `CrewAI` frameworks, which are more specialized for complex multi-agent workflows.
+**What is the "Typing Indicator"?**
+It's a visual cue (`isTyping` state) that shows three pulsing dots while we wait for the Groq API. This makes the app feel "alive" and tells the user that the AI is thinking.
 
-**What did you learn from building CJ?**
-I learned that the real power of AI isn't just in the model's knowledge, but in how you connect that model to **IO (Input/Output)**—making the AI actually *do* things in the physical or digital world.
+---
+
+## 🔹 Technical — Networking & Security
+
+**What is CORS and why did you need it?**
+CORS stands for "Cross-Origin Resource Sharing." By default, browsers block websites (Vercel) from talking to different servers (Render). I had to enable CORS in the Node.js backend to allow my Frontend to send requests to my Backend.
+
+**How do you keep your API Keys safe?**
+I use a `.env` file. I **never** push this file to GitHub. Instead, I manually add the keys into the Vercel and Render dashboards. This prevents hackers from stealing my Groq or MongoDB credentials.
+
+**What happens if the Groq API is down?**
+I have an "Error Catch" block in my code. If the API fails, CJ will say: *"Sorry, I'm taking a breather! Please try again later."* instead of the app just crashing.
+
+---
+
+## 🔹 Deployment & DevOps
+
+**Why use Vercel for Frontend and Render for Backend?**
+Vercel is the fastest and best at hosting React apps (Frontend). Render is great for running Node.js servers (Backend) for free. Using both shows I can manage a "Distributed Architecture."
+
+**What is a "Cold Start" on Render?**
+On the free tier, Render puts the server to sleep after 15 minutes of inactivity. The first time you use it, it takes 40 seconds to "wake up." This is a limitation of free hosting, but the code itself is very fast.
+
+**How do you update the live app?**
+I use **CI/CD (Continuous Integration/Deployment)**. When I push code to GitHub, Vercel and Render automatically see the change and update the live website within minutes.
+
+---
+
+## 🔹 Final "Senior" Level Question
+
+**If a user says CJ is "slow," how would you investigate?**
+1. I would check the **Network Tab** in the browser to see which part (DB or AI) is taking time.
+2. I would check the **Render Logs** to see if the server is struggling with memory.
+3. I would look at the **MongoDB Atlas metrics** to see if the database queries are slow.

@@ -1,42 +1,40 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
+const User = require('../models/User');
 
-// Target backend/data/ folder — works both locally and on Render
-const MEMORY_FILE = path.join(__dirname, '..', 'data', 'memory.json');
-
-// Helper to read memory
-function readMemory() {
-    try {
-        if (!fs.existsSync(MEMORY_FILE)) return {};
-        const data = fs.readFileSync(MEMORY_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error('[Memory API] Error reading memory:', err);
-        return {};
-    }
-}
-
-// GET /api/memory -> read and return memory.json
-router.get('/', (req, res) => {
-    const memory = readMemory();
-    res.json(memory);
+// GET: Get user memory from MongoDB
+router.get('/', async (req, res) => {
+  try {
+    let user = await User.findOne();
+    if (!user) return res.json({});
+    res.json(user);
+  } catch (err) {
+    console.error('Fetch Memory Error:', err);
+    res.status(500).json({ error: 'Failed to fetch memory from DB' });
+  }
 });
 
-// POST /api/memory -> update memory.json with request body
-router.post('/', (req, res) => {
-    try {
-        const newData = req.body;
-        // Ensure data directory exists
-        const dir = path.dirname(MEMORY_FILE);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(MEMORY_FILE, JSON.stringify(newData, null, 4));
-        res.json({ success: true, memory: newData });
-    } catch (err) {
-        console.error('[Memory API] Error writing memory:', err);
-        res.status(500).json({ error: 'Failed to write memory data' });
+// POST: Save user memory to MongoDB
+router.post('/', async (req, res) => {
+  try {
+    const { name, preferredMode, bio } = req.body;
+    let user = await User.findOne();
+
+    if (user) {
+      user.name = name || user.name;
+      user.preferredMode = preferredMode || user.preferredMode;
+      user.bio = bio || user.bio;
+      user.lastLogin = Date.now();
+      await user.save();
+    } else {
+      user = await User.create({ name, preferredMode, bio });
     }
+
+    res.json({ message: 'Memory saved to MongoDB', user });
+  } catch (err) {
+    console.error('Save Memory Error:', err);
+    res.status(500).json({ error: 'Failed to save memory to DB' });
+  }
 });
 
 module.exports = router;

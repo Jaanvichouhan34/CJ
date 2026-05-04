@@ -50,9 +50,9 @@ export default function ReminderPanel() {
     }
   };
 
-  const handleDelete = async (index) => {
+  const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/reminders/${index}`, { method: 'DELETE' });
+      const res = await fetch(`${BASE_URL}/api/reminders/${id}`, { method: 'DELETE' });
       if(res.ok) fetchReminders();
     } catch(err) {
       console.error('Error deleting reminder', err);
@@ -91,8 +91,8 @@ export default function ReminderPanel() {
             <p>No reminders yet. Ask CJ to remind you!</p>
           </div>
         ) : (
-          reminders.map((r, idx) => (
-            <div key={idx} className="glass-card anim-slide-up" style={{ 
+          reminders.map((r) => (
+            <div key={r._id} className="glass-card anim-slide-up" style={{ 
               padding: '1.5rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               borderLeft: r.fired ? '4px solid var(--border)' : '4px solid var(--accent-blue)',
               opacity: r.fired ? 0.6 : 1
@@ -110,7 +110,7 @@ export default function ReminderPanel() {
               </div>
               
               <button 
-                onClick={() => handleDelete(idx)}
+                onClick={() => handleDelete(r._id)}
                 className="glow-button outline"
                 style={{ padding: '8px 16px', borderColor: 'rgba(236, 72, 153, 0.4)' }}
               >

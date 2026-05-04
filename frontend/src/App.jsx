@@ -58,7 +58,7 @@ function App() {
             }
             
             // Mark as fired
-            await fetch(`${BASE_URL}/api/reminders/${index}/fire`, { method: 'POST' });
+            await fetch(`${BASE_URL}/api/reminders/${reminder._id}/fire`, { method: 'POST' });
           }
         }
       } catch (e) {

@@ -215,39 +215,32 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Load owner memory for personalization
+    // 1. Load owner name (Use local JSON fallback first for maximum speed)
     let ownerName = 'Friend';
     try {
-      const user = await User.findOne();
-      if (user) {
-        ownerName = user.name;
-      } else {
-        // Fallback to memory.json if no DB user exists yet
-        const memoryPath = path.join(__dirname, '../../desktop/memory.json');
-        if (fs.existsSync(memoryPath)) {
-          const memory = JSON.parse(fs.readFileSync(memoryPath, 'utf8'));
-          if (memory.name) ownerName = memory.name;
-        }
+      const memoryPath = path.join(__dirname, '../../desktop/memory.json');
+      if (fs.existsSync(memoryPath)) {
+        const memory = JSON.parse(fs.readFileSync(memoryPath, 'utf8'));
+        if (memory.name) ownerName = memory.name;
       }
     } catch (e) {
-      console.log('Could not load user memory, using default');
+      console.log('Using default owner name');
     }
 
-    // Build personality prompt based on mode
-    const personality = mode === 'friend'
-      ? `You are CJ, the best friend of ${ownerName}. Be casual, warm, funny. Keep your response short and concise. Use phrases like ayo, bro, fr fr. Always call them by name.`
-      : `You are CJ, a professional AI assistant for ${ownerName}. Be helpful, precise, short and friendly.`;
-
-    // 1. Fetch history FIRST (limit to 6 for speed)
+    // 2. Fetch history (Limit to 3 for ultra-fast performance)
     let history = [];
     try {
-      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(6);
+      const recentChats = await Chat.find().sort({ timestamp: -1 }).limit(3);
       history = recentChats.reverse().map(c => ({ role: c.role, content: c.content }));
     } catch (e) {
-      console.error('Failed to fetch history, proceeding without it');
+      console.error('History fetch failed, skipping');
     }
 
-    // 2. Call Groq API (Include current message MANUALLY to ensure it's there)
+    // 3. Build personality and call Groq
+    const personality = mode === 'friend'
+      ? `You are CJ, the best friend of ${ownerName}. Be casual, warm, funny. Response: very short/concise.`
+      : `You are CJ, a professional AI for ${ownerName}. Be helpful, precise, very short.`;
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -259,8 +252,10 @@ router.post('/', async (req, res) => {
         messages: [
            { role: 'system', content: personality },
            ...history,
-           { role: 'user', content: message } // Always include current message!
-        ]
+           { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 150 // Limit output size to speed up response
       })
     });
 

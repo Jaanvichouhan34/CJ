@@ -245,23 +245,74 @@ export default function ChatWindow() {
       </div>
 
       {/* Input */}
-      <div className="glass-card" style={{ display: 'flex', gap: '12px', padding: '1rem', alignItems: 'center' }}>
-        <input
-          type="text"
-          className="glow-input"
-          style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
-          placeholder="Message CJ..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
-        />
-        <VoiceButton onResult={(text) => sendMessage(text)} />
-        <button className="glow-button outline" onClick={stopSpeaking} style={{ padding: '14px 20px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10, borderColor: 'var(--accent-pink)' }}>
-          Stop ⏹️
-        </button>
-        <button className="glow-button" onClick={() => sendMessage(input)} style={{ padding: '14px 24px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          Send <span>➔</span>
-        </button>
+      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '15px', padding: '1.2rem', position: 'relative' }}>
+        
+        {/* Quick Action Chips */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '5px' }}>
+          {[
+            { label: 'Check Battery 🔋', cmd: 'What is my battery level?' },
+            { label: 'RAM Usage 🧠', cmd: 'Check my RAM usage' },
+            { label: 'Current Time ⏰', cmd: 'What time is it?' },
+            { label: 'Brightness 🔆', cmd: 'Set brightness to 80%' },
+            { label: 'Empty Trash 🗑️', cmd: 'Empty recycle bin' },
+            { label: 'Lock PC 🔒', cmd: 'Lock my PC' },
+            { label: 'Open VS Code 💻', cmd: 'Open VS Code' },
+            { label: 'YouTube 🎬', cmd: 'Open YouTube' },
+            { label: 'WhatsApp 🟢', cmd: 'Open WhatsApp' },
+            { label: 'Spotify 🎵', cmd: 'Open Spotify' },
+            { label: 'Google Search 🔍', cmd: 'Search for CJ AI Assistant' },
+            { label: 'Calculator 🧮', cmd: 'Open Calculator' }
+          ].map((chip, idx) => (
+            <button 
+              key={idx}
+              onClick={() => sendMessage(chip.cmd)}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border)',
+                borderRadius: '20px',
+                padding: '6px 14px',
+                color: 'var(--text-muted)',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 200, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'var(--accent-blue)';
+                e.currentTarget.style.color = 'var(--text-primary)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%' }}>
+          <input
+            type="text"
+            className="glow-input"
+            style={{ background: 'transparent', border: 'none', boxShadow: 'none' }}
+            placeholder="Message CJ..."
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
+          />
+          <VoiceButton onResult={(text) => sendMessage(text)} />
+          <button className="glow-button outline" onClick={stopSpeaking} style={{ padding: '14px 20px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 10, borderColor: 'var(--accent-pink)' }}>
+            Stop ⏹️
+          </button>
+          <button className="glow-button" onClick={() => sendMessage(input)} style={{ padding: '14px 24px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            Send <span>➔</span>
+          </button>
+        </div>
       </div>
 
     </div>

@@ -139,7 +139,67 @@ router.post('/', async (req, res) => {
       return res.json({ reply: `Right away! I'm opening ${app} for you.` });
     }
 
-    // Command 6: Natural Language Reminders (Improved parser)
+    // Command 6: System Hardware Health (Battery/RAM)
+    if (lowerMsg.includes('battery') || lowerMsg.includes('power') || lowerMsg.includes('charging')) {
+      return new Promise((resolve) => {
+        exec('powershell "(Get-CimInstance -ClassName Win32_Battery).EstimatedChargeRemaining"', (error, stdout) => {
+          const battery = stdout ? stdout.trim() : null;
+          if (battery && !isNaN(battery) && battery !== '') {
+            resolve(res.json({ reply: `Your laptop is currently at ${battery}% battery, sir.` }));
+          } else {
+            resolve(res.json({ reply: "I couldn't detect a battery. This usually happens on Desktop PCs, or if the battery driver is hidden." }));
+          }
+        });
+      });
+    }
+
+    if (lowerMsg.includes('ram') || lowerMsg.includes('memory') || lowerMsg.includes('system health') || lowerMsg.includes('specs')) {
+      return new Promise((resolve) => {
+        // Simple command that returns Free and Total memory on two lines
+        const cmd = 'powershell "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory; (Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize; (Get-CimInstance -ClassName Win32_Battery).EstimatedChargeRemaining"';
+        exec(cmd, (error, stdout) => {
+          if (error) {
+            console.error("RAM Exec Error:", error);
+            return resolve(res.json({ reply: "I'm having trouble accessing your system sensors right now." }));
+          }
+          
+          const matches = stdout ? stdout.match(/\d+/g) : [];
+          if (matches && matches.length >= 2) {
+            const freeKB = parseInt(matches[0]);
+            const totalKB = parseInt(matches[1]);
+            const battery = matches[2] || null;
+
+            if (!isNaN(freeKB) && !isNaN(totalKB)) {
+              const totalGB = Math.round(totalKB / 1024 / 1024);
+              const usedGB = Math.round((totalKB - freeKB) / 1024 / 1024);
+              
+              let reply = `You are currently using ${usedGB}GB of RAM out of ${totalGB}GB.`;
+              if (battery) reply += ` Your battery is at ${battery}%.`;
+              reply += ` Overall, your system health is looking great!`;
+              
+              return resolve(res.json({ reply }));
+            }
+          }
+          resolve(res.json({ reply: "I can see your system, but I'm having trouble calculating the exact RAM usage at the moment." }));
+        });
+      });
+    }
+
+    // Command 7: Brightness Control
+    if (lowerMsg.includes('brightness') && (lowerMsg.includes('set') || lowerMsg.includes('increase') || lowerMsg.includes('decrease') || lowerMsg.includes('change'))) {
+      let level = 50; // Default
+      if (lowerMsg.includes('high') || lowerMsg.includes('max')) level = 100;
+      if (lowerMsg.includes('low') || lowerMsg.includes('min')) level = 10;
+      if (lowerMsg.includes('medium')) level = 50;
+      
+      const numMatch = lowerMsg.match(/\d+/);
+      if (numMatch) level = parseInt(numMatch[0]);
+
+      exec(`powershell "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, ${level})"`);
+      return res.json({ reply: `Adjusting your screen brightness to ${level} percent.` });
+    }
+
+    // Command 8: Natural Language Reminders (Improved parser)
     if (lowerMsg.includes('reminder') || lowerMsg.includes('remind me') || lowerMsg.includes('set alarm') || 
        (lowerMsg.includes('date') && lowerMsg.includes('time') && lowerMsg.includes('event'))) {
       

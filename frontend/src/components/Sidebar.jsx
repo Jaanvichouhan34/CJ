@@ -1,4 +1,4 @@
-export default function Sidebar({ activeTab, setActiveTab }) {
+export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
   const navItems = [
     { id: 'chat', label: 'Chat', icon: '💬' },
     { id: 'reminders', label: 'Reminders', icon: '⏰' },
@@ -82,8 +82,38 @@ export default function Sidebar({ activeTab, setActiveTab }) {
         })}
       </nav>
 
+      {/* Bottom Sign Out */}
+      <button 
+        onClick={onSignOut}
+        style={{
+          marginTop: 'auto',
+          padding: '14px 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '15px',
+          background: 'rgba(239, 68, 68, 0.05)',
+          border: '1px solid rgba(239, 68, 68, 0.2)',
+          borderRadius: '12px',
+          color: '#ef4444',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          marginBottom: '2rem'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
+          e.currentTarget.style.transform = 'none';
+        }}
+      >
+        <span style={{ fontSize: '1.4rem' }}>🚪</span>
+        <span style={{ fontWeight: '600' }}>Sign Out</span>
+      </button>
+
       {/* Bottom Status */}
-      <div style={{ marginTop: 'auto', padding: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{
           width: '10px', height: '10px', borderRadius: '50%', background: '#10b981',
           boxShadow: '0 0 10px #10b981'

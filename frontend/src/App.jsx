@@ -77,6 +77,19 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleSignOut = async () => {
+    if (window.confirm("Are you sure you want to sign out? This will clear all memory and chat history.")) {
+      try {
+        await fetch(`${BASE_URL}/api/memory`, { method: 'DELETE' });
+        setShowSetup(true);
+        setActiveTab('chat');
+        window.location.reload(); // Refresh to clear local state
+      } catch (e) {
+        alert("Failed to sign out");
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
@@ -88,7 +101,7 @@ function App() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onSignOut={handleSignOut} />
       
       <main style={{ flex: 1, padding: '2rem 3rem', display: 'flex', flexDirection: 'column', zIndex: 1, maxHeight: '100vh', overflowY: 'auto' }}>
         {activeTab === 'chat' && <ChatWindow />}

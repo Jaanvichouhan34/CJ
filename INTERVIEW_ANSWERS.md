@@ -7,7 +7,7 @@ This document contains the core questions and detailed answers about the **CJ** 
 ## 🔹 Basic / Intro Questions
 
 **Tell me about CJ. What does it do?**
-CJ (Cyber Jarvis) is a personal AI Agent designed to bridge the gap between a standard chatbot and a system-level assistant. It handles natural language conversations, manages reminders, and can control system functions like opening apps (Spotify, WhatsApp, VS Code), searching the web, or even locking your PC—all through voice or text.
+CJ (Cyber Jarvis) is a personal AI Agent designed to bridge the gap between a standard chatbot and a system-level assistant. It handles natural language conversations, manages reminders, and can control system functions like opening apps (Spotify, WhatsApp, VS Code), searching the web, monitoring system health (RAM/Battery), adjusting brightness, or even locking your PC—all through voice or text.
 
 **Why did you build CJ?**
 I wanted to build something more than just a "wrapper" for an LLM. I wanted a companion that actually *understands* my system. CJ was built to automate repetitive desktop tasks and provide a personalized "Friday/Jarvis" style experience that feels alive and useful.
@@ -97,6 +97,12 @@ Browser-native Web Speech API. This keeps the app free and fast without needing 
 **How does CJ open apps on the system?**
 I built a **Command Dispatcher** in the backend. When a message starts with "open" or "launch," Node.js intercepts it and uses `exec()` to run the corresponding system command (e.g., `start chrome` or `code`).
 
+**How does CJ check your system health (RAM/Battery)?**
+I use the `child_process` module in Node.js to run native Windows commands. 
+*   For **Battery**, I run `WMIC Path Win32_Battery Get EstimatedChargeRemaining`.
+*   For **RAM**, I use a PowerShell command (`Get-CimInstance Win32_OperatingSystem`) to calculate total vs. free memory.
+This allows CJ to act like a real system administrator.
+
 **What happens if CJ doesn't understand a voice command?**
 It falls back to the LLM. If it’s not a hard-coded command (like "lock pc"), the text is sent to Llama 3, which then provides a natural language response.
 
@@ -173,9 +179,32 @@ I use **CI/CD (Continuous Integration/Deployment)**. When I push code to GitHub,
 
 ---
 
-## 🔹 Final "Senior" Level Question
+## 🚀 CJ Capability Cheat Sheet (Master List)
 
-**If a user says CJ is "slow," how would you investigate?**
-1. I would check the **Network Tab** in the browser to see which part (DB or AI) is taking time.
-2. I would check the **Render Logs** to see if the server is struggling with memory.
-3. I would look at the **MongoDB Atlas metrics** to see if the database queries are slow.
+Use this section to quickly explain **exactly** what CJ can do.
+
+### **1. AI & Reasoning (The Brain)**
+*   **Conversational Intelligence:** Powered by Llama 3.3 (70B) for instant, context-aware chatting.
+*   **Personality Modes:** Toggle between "Friend Mode" (casual) and "Pro Mode" (professional).
+*   **Context Memory:** Remembers the last 8-10 messages to maintain a natural conversation flow.
+
+### **2. Hardware & System Health (New!)**
+*   **Battery Status:** Say *"Check my battery"* to get real-time percentage.
+*   **RAM Usage:** Say *"How much memory am I using?"* to see free vs. total RAM (GB).
+*   **Display Control:** Say *"Set brightness to 50%"* to dim or brighten your screen.
+*   **System Health:** Ask *"How is my PC health?"* for a quick specs report.
+
+### **3. Desktop Automation**
+*   **Open Apps:** Launch WhatsApp, Discord, Spotify, VS Code, Chrome, and more.
+*   **Windows Utilities:** Open Calculator, Notepad, Task Manager, or Settings.
+*   **Power Actions:** Say *"Lock my PC"* or *"Empty Recycle Bin"* for instant action.
+
+### **4. Web & Search**
+*   **Dynamic Search:** Say *"Search for [Topic]"* or *"Google [Question]"*.
+*   **Quick Links:** Instantly open YouTube, Netflix, Gmail, GitHub, or Instagram.
+
+### **5. Voice & UX**
+*   **Interactive Waveform:** A visual audio wave that pulses when CJ listens or speaks.
+*   **Smart Reminders:** Set alarms like *"Remind me to [Task] at [Time]"*; CJ will speak the reminder out loud even if the app is in the background.
+
+---

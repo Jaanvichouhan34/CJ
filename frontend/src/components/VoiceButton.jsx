@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 
 export default function VoiceButton({ onResult }) {
   const [isListening, setIsListening] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
   const recognitionRef = useRef(null)
   const isListeningRef = useRef(false)
 
@@ -50,10 +51,12 @@ export default function VoiceButton({ onResult }) {
       // Robust Echo Loop Protection
       const handleSpeechStart = () => {
         console.log("[Mic] CJ is speaking - aborting recognition to block echo.");
+        setIsSpeaking(true);
         recognition.abort(); // Use abort to instantly stop any pending results
       };
 
       const handleSpeechEnd = () => {
+        setIsSpeaking(false);
         // Add a 600ms cooldown after she finishes talking to catch any tail-end audio/echoes
         setTimeout(() => {
           if (isListeningRef.current) {
@@ -87,23 +90,52 @@ export default function VoiceButton({ onResult }) {
   }
 
   return (
-    <button 
-      onClick={toggleListen}
-      title={isListening ? "Listening natively... (Click to stop)" : "Click to start hands-free mode"}
-      style={{
-        width: '45px', height: '45px',
-        borderRadius: '50%',
-        display: 'flex', justifyContent: 'center', alignItems: 'center',
-        background: 'var(--bg-card)',
-        border: `2px solid ${isListening ? '#ef4444' : 'var(--border)'}`,
-        boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.4)' : 'none',
-        color: 'var(--text-primary)',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        animation: isListening ? 'pulse-glow-red 2s infinite' : 'none'
-      }}
-    >
-      <span style={{ fontSize: '1.2rem' }}>🎙️</span>
-    </button>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+      {(isListening || isSpeaking) && (
+        <div className="waveform-container anim-fade-in">
+          <div className="waveform-bar"></div>
+          <div className="waveform-bar"></div>
+          <div className="waveform-bar"></div>
+          <div className="waveform-bar"></div>
+          <div className="waveform-bar"></div>
+        </div>
+      )}
+      
+      <button 
+        onClick={toggleListen}
+        title={isListening ? "Listening natively... (Click to stop)" : "Click to start hands-free mode"}
+        style={{
+          width: '55px', height: '55px',
+          borderRadius: '50%',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          background: isListening ? 'rgba(239, 68, 68, 0.1)' : 'var(--bg-card)',
+          border: `2px solid ${isListening ? '#ef4444' : isSpeaking ? 'var(--accent-blue)' : 'var(--border)'}`,
+          boxShadow: isListening 
+            ? '0 0 20px rgba(239, 68, 68, 0.3)' 
+            : isSpeaking ? '0 0 20px rgba(0, 200, 255, 0.3)' : 'none',
+          color: 'var(--text-primary)',
+          cursor: 'pointer',
+          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+          animation: isListening ? 'pulse-glow-red 2s infinite' : isSpeaking ? 'anim-pulse-glow 1.5s infinite' : 'none',
+          transform: (isListening || isSpeaking) ? 'scale(1.1)' : 'scale(1)'
+        }}
+      >
+        <span style={{ fontSize: '1.4rem' }}>
+          {isListening ? '🛑' : '🎙️'}
+        </span>
+      </button>
+      
+      {isListening && (
+        <span style={{ 
+          fontSize: '0.75rem', 
+          color: '#ef4444', 
+          fontWeight: '600',
+          letterSpacing: '1px',
+          textTransform: 'uppercase'
+        }} className="anim-fade-in">
+          Listening Live
+        </span>
+      )}
+    </div>
   )
 }

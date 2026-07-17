@@ -1,4 +1,4 @@
-...
+..
 <div align="center">
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=220&section=header&text=CJ&fontSize=120&fontColor=fff&animation=twinkling&fontAlignY=40&desc=Not%20just%20an%20assistant.%20Your%20friend.&descAlignY=65&descSize=20" />

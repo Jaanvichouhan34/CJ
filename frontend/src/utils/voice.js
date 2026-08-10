@@ -33,20 +33,62 @@ export const speak = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     // Allow speed adjustment from localStorage
     const speed = localStorage.getItem('cj_voice_speed') || '1.0';
-    utterance.rate = parseFloat(speed);
-    utterance.pitch = voiceGender === 'female' ? 1.4 : 0.85;
+    // Adjust pitch and set keywords based on selected persona
+    const gender = localStorage.getItem('cj_voice_gender') || 'male';
+    let pitch = 1.0;
+    let rate = parseFloat(speed);
+    let keywords = [];
+
+    if (gender === 'female') {
+      pitch = 1.4;
+    } else if (gender === 'uk_male') {
+      pitch = 0.85;
+    } else if (gender === 'uk_female') {
+      pitch = 1.3;
+    } else if (gender === 'robot') {
+      pitch = 0.1;
+      rate = rate * 0.8;
+    } else if (gender === 'child') {
+      pitch = 2.0;
+    } else {
+      // Default to male
+      pitch = 0.85;
+    }
+
+    utterance.rate = rate;
+    utterance.pitch = pitch;
     utterance.volume = 1;
 
-    // Try to find a matching voice by gender keyword
-    const gender = localStorage.getItem('cj_voice_gender') || 'male';
-    const femaleKeywords = ['female', 'woman', 'girl', 'zira', 'susan', 'samantha', 'victoria'];
-    const maleKeywords = ['male', 'man', 'david', 'mark', 'daniel', 'alex', 'james'];
-    const keywords = gender === 'female' ? femaleKeywords : maleKeywords;
+    let matched = null;
+    const isFemaleVoice = (v) => {
+      const name = v.name.toLowerCase();
+      return name.includes('female') || name.includes('woman') || name.includes('girl') || name.includes('zira') || name.includes('samantha') || name.includes('hazel');
+    };
 
-    const matched = voices.find(v =>
-      keywords.some(k => v.name.toLowerCase().includes(k))
-    );
-    utterance.voice = matched || voices[0];
+    if (gender === 'uk_male') {
+      matched = voices.find(v => v.name.includes('UK English Male') || v.name.includes('George') || v.name.includes('Brian'));
+      if (!matched) matched = voices.find(v => v.lang.includes('GB') && !isFemaleVoice(v));
+      if (!matched) matched = voices.find(v => !isFemaleVoice(v) && v.lang.includes('en'));
+    } else if (gender === 'uk_female') {
+      matched = voices.find(v => v.name.includes('UK English Female') || v.name.includes('Hazel') || v.name.includes('Amy'));
+      if (!matched) matched = voices.find(v => v.lang.includes('GB') && isFemaleVoice(v));
+      if (!matched) matched = voices.find(v => isFemaleVoice(v) && v.lang.includes('en'));
+    } else if (gender === 'male' || gender === 'robot') {
+      matched = voices.find(v => (v.name === 'Google US English' || v.name.includes('David') || v.name.includes('Mark')) && !isFemaleVoice(v));
+      if (!matched) matched = voices.find(v => v.lang.includes('US') && !isFemaleVoice(v));
+      if (!matched) matched = voices.find(v => !isFemaleVoice(v) && v.lang.includes('en'));
+    } else if (gender === 'female' || gender === 'child') {
+      matched = voices.find(v => v.name.includes('Zira') || v.name.includes('Samantha') || (v.name === 'Google US English' && isFemaleVoice(v)));
+      if (!matched) matched = voices.find(v => v.lang.includes('US') && isFemaleVoice(v));
+      if (!matched) matched = voices.find(v => isFemaleVoice(v) && v.lang.includes('en'));
+    }
+    
+    // Ultimate fallback if absolutely no English voice is found (very rare)
+    if (!matched) {
+      matched = voices.find(v => v.lang.includes('en')) || voices[0];
+    }
+    
+    utterance.voice = matched;
 
     utterance.onend = () => {
       window.isCjSpeaking = false;

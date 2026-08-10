@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion';
+import { Mic, MicOff } from 'lucide-react';
 
 export default function VoiceButton({ onResult }) {
   const [isListening, setIsListening] = useState(false)
@@ -34,15 +36,24 @@ export default function VoiceButton({ onResult }) {
       }
 
       recognition.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
+        console.error("Speech recognition error:", event.error);
+        if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+          setIsListening(false);
+        }
       }
 
       recognition.onend = () => {
         // Only restart if the user still wants us to listen AND CJ isn't talking
         if (isListeningRef.current && !window.isCjSpeaking) {
-          try {
-            recognition.start();
-          } catch(e) {}
+          setTimeout(() => {
+            if (isListeningRef.current && !window.isCjSpeaking) {
+              try {
+                recognition.start();
+              } catch(e) {
+                console.log("Failed to restart recognition:", e);
+              }
+            }
+          }, 300);
         }
       }
 
@@ -101,8 +112,10 @@ export default function VoiceButton({ onResult }) {
         </div>
       )}
       
-      <button 
+      <motion.button 
         onClick={toggleListen}
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.9 }}
         title={isListening ? "Listening natively... (Click to stop)" : "Click to start hands-free mode"}
         style={{
           width: '55px', height: '55px',
@@ -111,19 +124,15 @@ export default function VoiceButton({ onResult }) {
           background: isListening ? 'rgba(239, 68, 68, 0.1)' : 'var(--bg-card)',
           border: `2px solid ${isListening ? '#ef4444' : isSpeaking ? 'var(--accent-blue)' : 'var(--border)'}`,
           boxShadow: isListening 
-            ? '0 0 20px rgba(239, 68, 68, 0.3)' 
-            : isSpeaking ? '0 0 20px rgba(0, 200, 255, 0.3)' : 'none',
-          color: 'var(--text-primary)',
+            ? '0 0 20px rgba(239, 68, 68, 0.5)' 
+            : isSpeaking ? '0 0 20px rgba(0, 200, 255, 0.5)' : '0 0 10px rgba(0,240,255,0.1)',
+          color: isListening ? '#ef4444' : 'var(--accent-blue)',
           cursor: 'pointer',
-          transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
           animation: isListening ? 'pulse-glow-red 2s infinite' : isSpeaking ? 'anim-pulse-glow 1.5s infinite' : 'none',
-          transform: (isListening || isSpeaking) ? 'scale(1.1)' : 'scale(1)'
         }}
       >
-        <span style={{ fontSize: '1.4rem' }}>
-          {isListening ? '🛑' : '🎙️'}
-        </span>
-      </button>
+        {isListening ? <MicOff size={24} /> : <Mic size={24} />}
+      </motion.button>
       
       {isListening && (
         <span style={{ 

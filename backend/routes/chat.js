@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
     // Log the incoming request so we can debug
     console.log('Chat request received:', req.body);
 
-    const { message, mode } = req.body;
+    const { message, mode, settings = {} } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
@@ -61,6 +61,24 @@ router.post('/', async (req, res) => {
     if (lowerMsg === 'empty trash' || lowerMsg === 'empty recycle bin') {
       exec('PowerShell.exe -NoProfile -Command Clear-RecycleBin -Confirm:$false');
       return res.json({ reply: 'Consider it done. Recycle bin has been emptied.' });
+    }
+
+    // Command: Coin Flip
+    if (lowerMsg === 'flip a coin' || lowerMsg === 'toss a coin') {
+      const outcome = Math.random() < 0.5 ? 'Heads' : 'Tails';
+      return res.json({ reply: `I flipped a coin and it landed on... ${outcome}!` });
+    }
+
+    // Command: Tell a Joke
+    if (lowerMsg === 'tell me a joke' || lowerMsg === 'tell a joke') {
+      const jokes = [
+        "Why do programmers prefer dark mode? Because light attracts bugs.",
+        "How many programmers does it take to change a light bulb? None, that's a hardware problem.",
+        "Why did the developer go broke? Because they used up all their cache.",
+        "I would tell you a UDP joke, but you might not get it."
+      ];
+      const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+      return res.json({ reply: randomJoke });
     }
 
     // Command 5: Open Apps & Websites
@@ -311,9 +329,23 @@ router.post('/', async (req, res) => {
     }
 
     // 3. Build personality and call Groq
-    const personality = mode === 'friend'
-      ? `You are CJ, the best friend of ${ownerName}. Be casual, warm, funny. Response: very short/concise.`
-      : `You are CJ, a professional AI for ${ownerName}. Be helpful, precise, very short.`;
+    const humorLevel = settings.humor || 50;
+    const empathyLevel = settings.empathy || 50;
+    const isSarcastic = settings.tone === 'sarcastic';
+    
+    let basePersonality = mode === 'friend'
+      ? `You are CJ, the best friend of ${ownerName}. You were created by Jaanvi Chouhan, a brilliant software engineer. Be casual and friendly. `
+      : `You are CJ, a professional AI for ${ownerName}. You were created by Jaanvi Chouhan, a brilliant software engineer. Be helpful and precise. `;
+
+    if (humorLevel > 70) basePersonality += "Be very funny and use jokes. ";
+    else if (humorLevel < 30) basePersonality += "Keep the humor minimal. ";
+    
+    if (empathyLevel > 70) basePersonality += "Be extremely empathetic, caring, and understanding. ";
+    
+    if (isSarcastic) basePersonality += "Have a sarcastic, witty, and slightly snarky tone. ";
+
+    basePersonality += "Keep your responses concise but engaging.";
+    const personality = basePersonality;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -328,8 +360,8 @@ router.post('/', async (req, res) => {
            ...history,
            { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 150 // Limit output size to speed up response
+        temperature: 0.8,
+        max_tokens: 300 // Increased to allow more conversational flow
       })
     });
 

@@ -1,10 +1,13 @@
+import { motion } from 'framer-motion';
+import { MessageSquare, Bell, User, Settings, HelpCircle, LogOut, Activity } from 'lucide-react';
+
 export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
   const navItems = [
-    { id: 'chat', label: 'Chat', icon: '💬' },
-    { id: 'reminders', label: 'Reminders', icon: '⏰' },
-    { id: 'profile', label: 'Profile', icon: '👤' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
-    { id: 'help', label: 'Help', icon: '🤖' },
+    { id: 'chat', label: 'Chat', icon: <MessageSquare size={20} /> },
+    { id: 'reminders', label: 'Reminders', icon: <Bell size={20} /> },
+    { id: 'profile', label: 'Profile', icon: <User size={20} /> },
+    { id: 'settings', label: 'Settings', icon: <Settings size={20} /> },
+    { id: 'help', label: 'Help', icon: <HelpCircle size={20} /> },
   ];
 
   return (
@@ -20,18 +23,24 @@ export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
     }}>
       {/* Top Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '3.5rem', paddingLeft: '0.5rem' }}>
-        <div className="anim-pulse-glow" style={{
-          width: '40px', height: '40px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
-          display: 'flex', justifyContent: 'center', alignItems: 'center',
-          fontWeight: 'bold', fontSize: '1.2rem', color: '#fff'
-        }}>
+        <motion.div 
+          className="anim-pulse-glow glitch-text"
+          data-text="CJ"
+          whileHover={{ scale: 1.1, rotate: 90 }}
+          style={{
+            width: '45px', height: '45px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            fontWeight: '900', fontSize: '1.4rem', color: '#fff',
+            boxShadow: '0 0 20px rgba(0, 240, 255, 0.5)',
+            border: '2px solid rgba(255,255,255,0.2)'
+          }}>
           CJ
-        </div>
+        </motion.div>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0, letterSpacing: '0.5px' }}>CJ Assistant</h2>
-          <span style={{ fontSize: '0.8rem', color: 'var(--accent-blue)', background: 'rgba(0, 200, 255, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>v1.0</span>
+          <h2 style={{ fontSize: '1.8rem', fontFamily: 'Orbitron', fontWeight: '700', margin: 0, letterSpacing: '1px', textShadow: '0 0 10px rgba(0, 240, 255, 0.5)' }}>CYBER</h2>
+          <span style={{ fontSize: '0.85rem', color: 'var(--accent-blue)', background: 'rgba(0, 240, 255, 0.1)', padding: '2px 8px', borderRadius: '4px', letterSpacing: '2px', fontFamily: 'Rajdhani' }}>v2099.1</span>
         </div>
       </div>
 
@@ -40,51 +49,48 @@ export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
         {navItems.map(item => {
           const isActive = activeTab === item.id;
           return (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              whileHover={{ x: 8, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ x: 0 }}
+              animate={{ 
+                x: isActive ? 8 : 0,
+                backgroundColor: isActive ? 'rgba(0, 240, 255, 0.1)' : 'transparent',
+                borderColor: isActive ? 'var(--accent-blue)' : 'transparent'
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '15px',
                 padding: '14px 1rem',
                 border: 'none',
-                background: isActive ? 'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%)' : 'transparent',
-                borderLeft: isActive ? '4px solid transparent' : '4px solid transparent',
-                borderImage: isActive ? 'linear-gradient(to bottom, var(--accent-blue), var(--accent-purple)) 1' : 'none',
+                borderLeft: '4px solid',
                 color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
                 borderRadius: '0 12px 12px 0',
                 cursor: 'pointer',
                 textAlign: 'left',
-                fontSize: '1.05rem',
-                transition: 'all 0.3s ease',
-                transform: isActive ? 'translateX(6px)' : 'none'
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  e.currentTarget.style.transform = 'translateX(6px)';
-                  e.currentTarget.style.color = 'var(--text-primary)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.color = 'var(--text-muted)';
-                }
+                fontSize: '1.1rem',
+                fontFamily: 'Rajdhani',
+                fontWeight: isActive ? '600' : '500',
+                letterSpacing: '1px'
               }}
             >
-              <span style={{ fontSize: '1.4rem' }}>{item.icon}</span>
-              <span style={{ fontWeight: isActive ? '600' : '400' }}>{item.label}</span>
-            </button>
+              <span style={{ color: isActive ? 'var(--accent-blue)' : 'inherit', filter: isActive ? 'drop-shadow(0 0 5px var(--accent-blue))' : 'none' }}>
+                {item.icon}
+              </span>
+              <span>{item.label}</span>
+            </motion.button>
           )
         })}
       </nav>
 
       {/* Bottom Sign Out */}
-      <button 
+      <motion.button 
         onClick={onSignOut}
+        whileHover={{ y: -2, backgroundColor: 'rgba(239, 68, 68, 0.15)', boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)' }}
+        whileTap={{ scale: 0.95 }}
         style={{
           marginTop: 'auto',
           padding: '14px 1rem',
@@ -96,29 +102,20 @@ export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
           borderRadius: '12px',
           color: '#ef4444',
           cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          marginBottom: '2rem'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)';
-          e.currentTarget.style.transform = 'none';
+          marginBottom: '2rem',
+          fontFamily: 'Rajdhani',
+          fontWeight: '600',
+          letterSpacing: '1px'
         }}
       >
-        <span style={{ fontSize: '1.4rem' }}>🚪</span>
-        <span style={{ fontWeight: '600' }}>Sign Out</span>
-      </button>
+        <LogOut size={20} />
+        <span>SYSTEM LOGOUT</span>
+      </motion.button>
 
       {/* Bottom Status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{
-          width: '10px', height: '10px', borderRadius: '50%', background: '#10b981',
-          boxShadow: '0 0 10px #10b981'
-        }} className="anim-pulse-glow"></div>
-        <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Online</span>
+        <Activity size={16} color="#00f3ff" className="anim-pulse-glow" style={{ filter: 'drop-shadow(0 0 5px #00f3ff)' }} />
+        <span style={{ color: 'var(--accent-blue)', fontSize: '0.9rem', fontFamily: 'Rajdhani', letterSpacing: '1px', textShadow: '0 0 5px rgba(0,240,255,0.5)' }}>CORE ONLINE</span>
       </div>
     </aside>
   );

@@ -13,6 +13,11 @@ function App() {
   const [activeTab, setActiveTab] = useState('chat');
   const [showSetup, setShowSetup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState(localStorage.getItem('cj_theme') || 'default');
+
+  useEffect(() => {
+    localStorage.setItem('cj_theme', theme);
+  }, [theme]);
 
   // Initial setup check
   useEffect(() => {
@@ -100,15 +105,32 @@ function App() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div className={theme !== 'default' ? `theme-${theme}` : ''} style={{ display: 'flex', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      {/* 2099 Background Ambient Effects */}
+      <div className="ambient-glow-1"></div>
+      <div className="ambient-glow-2"></div>
+
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onSignOut={handleSignOut} />
       
-      <main style={{ flex: 1, padding: '2rem 3rem', display: 'flex', flexDirection: 'column', zIndex: 1, maxHeight: '100vh', overflowY: 'auto' }}>
-        {activeTab === 'chat' && <ChatWindow />}
-        {activeTab === 'reminders' && <ReminderPanel />}
-        {activeTab === 'profile' && <Profile />}
-        {activeTab === 'settings' && <Settings />}
-        {activeTab === 'help' && <Help />}
+      <main style={{ flex: 1, padding: '2rem 3rem', display: 'flex', flexDirection: 'column', zIndex: 1, height: '100%', overflow: 'hidden' }}>
+        {/* HUD Data Panel Wrap */}
+        <div className="hud-panel glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '15px', overflow: 'hidden', padding: '1rem' }}>
+          <div style={{ display: activeTab === 'chat' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            <ChatWindow />
+          </div>
+          <div style={{ display: activeTab === 'reminders' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            <ReminderPanel />
+          </div>
+          <div style={{ display: activeTab === 'profile' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            <Profile />
+          </div>
+          <div style={{ display: activeTab === 'settings' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            <Settings theme={theme} setTheme={setTheme} />
+          </div>
+          <div style={{ display: activeTab === 'help' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            <Help />
+          </div>
+        </div>
       </main>
 
       {showSetup && <SetupModal onComplete={() => setShowSetup(false)} />}

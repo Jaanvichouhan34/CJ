@@ -44,11 +44,9 @@ CJ is a **voice-controlled AI desktop assistant** that goes beyond simple comman
 ### Interface Previews
 
 <div align="center">
-  <img src="screenshots/cj%201.png" alt="CJ Screen 1" width="500" />
-  <br/><br/>
-  <img src="screenshots/CJ.png" alt="CJ Interface" width="500" />
-  <br/><br/>
-  <img src="screenshots/cj%202.png" alt="CJ Screen 2" width="500" />
+  <img src="screenshots/CJ.png" alt="CJ Interface" width="400" />
+  &nbsp;&nbsp;
+  <img src="screenshots/cj%202.png" alt="CJ Screen 2" width="400" />
 </div>
 <br/>
 

@@ -93,9 +93,9 @@ CJ is a **voice-controlled AI desktop assistant** that goes beyond simple comman
 | Identity awareness | ❌ No memory of who you are | ✅ Remembers name, age, college, habits |
 | Conversation style | ❌ Robotic, scripted responses | ✅ Talks like a real friend in Friend Mode |
 | Risky actions | ❌ Executes without asking | ✅ 2-way auth before deleting / transferring |
-| Voice options | ❌ Single voice only | ✅ Male or Female voice selection |
-| UI | ❌ Terminal only | ✅ Full React dashboard, glassmorphism design |
-| Personality | ❌ Always formal | ✅ Switch between Professional & Friend mode |
+| Voice options | ❌ Single voice only | ✅ 5 Personas (US, UK, Robot, Child) with strict matching |
+| UI Themes | ❌ Terminal only | ✅ 10 Dynamic Glassmorphism Themes with state preservation |
+| Personality | ❌ Always formal | ✅ Adjustable Humor, Empathy, and Tone sliders |
 
 > CJ is designed for **introverts and solo learners** who want a companion that's always there — to help with work AND to just talk.
 

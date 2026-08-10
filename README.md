@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=220&section=header&text=CJ&fontSize=120&fontColor=fff&animation=twinkling&fontAlignY=40&desc=Not%20just%20an%20assistant.%20Your%20friend.&descAlignY=65&descSize=20" />
+<img src="screenshots/banner.png" alt="CJ Banner" width="800" />
 
 <br/>
 
@@ -40,6 +40,17 @@
 ## 🧠 What is CJ?
 
 CJ is a **voice-controlled AI desktop assistant** that goes beyond simple command execution. It's a full-stack system — Python desktop core, Node.js API bridge, and a React glassmorphism dashboard — all connected to Google Gemini AI.
+
+### Interface Previews
+
+<div align="center">
+  <img src="screenshots/setup.png" alt="Setup Screen" width="800" />
+  <br/><br/>
+  <img src="screenshots/chat.png" alt="Chat Interface" width="800" />
+  <br/><br/>
+  <img src="screenshots/help.png" alt="Help Panel" width="800" />
+</div>
+<br/>
 
 <table>
 <tr>

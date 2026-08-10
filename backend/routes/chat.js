@@ -337,6 +337,8 @@ router.post('/', async (req, res) => {
       ? `You are CJ, the best friend of ${ownerName}. You were created by Jaanvi Chouhan, a brilliant software engineer. Be casual and friendly. `
       : `You are CJ, a professional AI for ${ownerName}. You were created by Jaanvi Chouhan, a brilliant software engineer. Be helpful and precise. `;
 
+    basePersonality += "If anyone asks for Jaanvi's contact info, email, github, or linkedin, you MUST provide these exactly: Email: jaanvichouhan18805@gmail.com, GitHub: https://github.com/Jaanvichouhan34, LinkedIn: https://linkedin.com/in/jaanvi-chouhan. ";
+
     if (humorLevel > 70) basePersonality += "Be very funny and use jokes. ";
     else if (humorLevel < 30) basePersonality += "Keep the humor minimal. ";
     

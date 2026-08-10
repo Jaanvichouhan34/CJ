@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MessageSquare, Bell, User, Settings, HelpCircle, LogOut, Activity } from 'lucide-react';
+import { MessageSquare, Bell, User, Settings, HelpCircle, LogOut, Activity, Github, Linkedin, Mail } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
   const navItems = [
@@ -111,6 +111,19 @@ export default function Sidebar({ activeTab, setActiveTab, onSignOut }) {
         <LogOut size={20} />
         <span>SYSTEM LOGOUT</span>
       </motion.button>
+
+      {/* Social Links */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '1.5rem' }}>
+        <a href="https://github.com/Jaanvichouhan34" target="_blank" rel="noreferrer" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color='var(--text-primary)'} onMouseOut={e => e.currentTarget.style.color='var(--text-muted)'}>
+          <Github size={18} />
+        </a>
+        <a href="https://linkedin.com/in/jaanvi-chouhan" target="_blank" rel="noreferrer" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color='var(--accent-blue)'} onMouseOut={e => e.currentTarget.style.color='var(--text-muted)'}>
+          <Linkedin size={18} />
+        </a>
+        <a href="mailto:jaanvichouhan18805@gmail.com" style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color='var(--accent-purple)'} onMouseOut={e => e.currentTarget.style.color='var(--text-muted)'}>
+          <Mail size={18} />
+        </a>
+      </div>
 
       {/* Bottom Status */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

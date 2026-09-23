@@ -349,30 +349,58 @@ router.post('/', async (req, res) => {
     basePersonality += "Keep your responses concise but engaging.";
     const personality = basePersonality;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-           { role: 'system', content: personality },
-           ...history,
-           { role: 'user', content: message }
-        ],
-        temperature: 0.8,
-        max_tokens: 300 // Increased to allow more conversational flow
-      })
-    });
+    // Groq model selection: defaults to llama-3.1-8b-instant which is universally supported on all accounts
+    const preferredModel = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+    const candidateModels = [preferredModel, 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'gemma2-9b-it'].filter((m, i, arr) => arr.indexOf(m) === i);
 
-    if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Groq API Error: ${response.status} - ${errText}`);
+    let data = null;
+    let lastError = null;
+
+    for (const currentModel of candidateModels) {
+      try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: currentModel,
+            messages: [
+               { role: 'system', content: personality },
+               ...history,
+               { role: 'user', content: message }
+            ],
+            temperature: 0.8,
+            max_tokens: 300 // Increased to allow more conversational flow
+          })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          // If the model does not exist or account lacks access (404), attempt next candidate
+          if (response.status === 404 || errText.includes('model_not_found')) {
+            console.warn(`⚠️ Groq model '${currentModel}' not available (404). Trying next fallback...`);
+            lastError = new Error(`Groq API Error: ${response.status} - ${errText}`);
+            continue;
+          }
+          throw new Error(`Groq API Error: ${response.status} - ${errText}`);
+        }
+
+        data = await response.json();
+        break; // Request succeeded!
+      } catch (err) {
+        lastError = err;
+        if (!err.message.includes('404') && !err.message.includes('model_not_found')) {
+          throw err;
+        }
+      }
     }
 
-    const data = await response.json();
+    if (!data || !data.choices || !data.choices[0]) {
+      throw lastError || new Error('Failed to get valid completion from Groq API');
+    }
+
     const reply = data.choices[0].message.content;
 
     // 3. Save both messages to DB (AWAIT this to ensure it saves on free tiers)

@@ -349,9 +349,16 @@ router.post('/', async (req, res) => {
     basePersonality += "Keep your responses concise but engaging.";
     const personality = basePersonality;
 
-    // Groq model selection: defaults to llama-3.1-8b-instant which is universally supported on all accounts
-    const preferredModel = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
-    const candidateModels = [preferredModel, 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'gemma2-9b-it'].filter((m, i, arr) => arr.indexOf(m) === i);
+    // Groq model selection: active Groq models on this account include openai/gpt-oss-120b, openai/gpt-oss-20b, qwen/qwen3.8-27b
+    const preferredModel = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+    const candidateModels = [
+      preferredModel,
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'qwen/qwen3.8-27b',
+      'llama-3.3-70b-versatile',
+      'llama-3.1-8b-instant'
+    ].filter((m, i, arr) => arr.indexOf(m) === i);
 
     let data = null;
     let lastError = null;
@@ -361,7 +368,7 @@ router.post('/', async (req, res) => {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${apiKey}`,
+            'Authorization': `Bearer ${apiKey.trim()}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -378,22 +385,18 @@ router.post('/', async (req, res) => {
 
         if (!response.ok) {
           const errText = await response.text();
-          // If the model does not exist or account lacks access (404), attempt next candidate
-          if (response.status === 404 || errText.includes('model_not_found')) {
-            console.warn(`⚠️ Groq model '${currentModel}' not available (404). Trying next fallback...`);
-            lastError = new Error(`Groq API Error: ${response.status} - ${errText}`);
-            continue;
-          }
-          throw new Error(`Groq API Error: ${response.status} - ${errText}`);
+          console.warn(`⚠️ Groq model '${currentModel}' failed (${response.status}): ${errText}. Trying next fallback...`);
+          lastError = new Error(`Groq API Error: ${response.status} - ${errText}`);
+          continue;
         }
 
         data = await response.json();
-        break; // Request succeeded!
+        if (data && data.choices && data.choices[0] && data.choices[0].message) {
+          break; // Request succeeded!
+        }
       } catch (err) {
         lastError = err;
-        if (!err.message.includes('404') && !err.message.includes('model_not_found')) {
-          throw err;
-        }
+        console.warn(`⚠️ Groq request with '${currentModel}' threw error:`, err.message);
       }
     }
 
